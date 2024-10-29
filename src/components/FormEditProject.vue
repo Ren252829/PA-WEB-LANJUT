@@ -1,55 +1,57 @@
 <template>
-  <div class="edit-project">
-    <button class="close-button">&times;</button>
-    <h2>Edit Proyek</h2>
-    <hr />
-    <form @submit.prevent="handleSubmit">
-      <div class="topForm">
-        <div class="leftForm">
-          <div>
-            <input
-              type="text"
-              id="title"
-              v-model="title"
-              required
-              placeholder="Title"
-            />
+  <div v-if="showForm" class="overlay">
+    <div class="edit-project">
+      <button class="close-button" @click="closeForm">&times;</button>
+      <h2>Edit Proyek</h2>
+      <hr />
+      <form @submit.prevent="handleSubmit">
+        <div class="topForm">
+          <div class="leftForm">
+            <div>
+              <input
+                type="text"
+                id="title"
+                v-model="title"
+                required
+                placeholder="Title"
+              />
+            </div>
+            <div>
+              <input type="text" id="link" v-model="link" placeholder="Link" />
+            </div>
+            <div class="form-group-check-box">
+              <input type="checkbox" value="value1" v-model="pilihan" />
+              Videografi
+              <input type="checkbox" value="value2" v-model="pilihan" />
+              Photografi
+              <input type="checkbox" value="value3" v-model="pilihan" /> Voice
+              Over
+            </div>
+            <div>
+              <textarea
+                id="description"
+                v-model="description"
+                required
+                placeholder="Deskripsi"
+              ></textarea>
+            </div>
           </div>
-          <div>
-            <input type="text" id="link" v-model="link" placeholder="Link" />
-          </div>
-          <div class="form-group-check-box">
-            <input type="checkbox" value="value1" v-model="pilihan" />
-            Videografi
-            <input type="checkbox" value="value2" v-model="pilihan" />
-            Photografi
-            <input type="checkbox" value="value3" v-model="pilihan" /> Voice
-            Over
-          </div>
-          <div>
-            <textarea
-              id="description"
-              v-model="description"
-              required
-              placeholder="Deskripsi"
-            ></textarea>
+          <div class="rightForm">
+            <div class="image-upload">
+              <input type="file" id="image" @change="onImageChange" />
+              <img :src="imageUrl" alt="Preview Gambar" v-if="imageUrl" />
+            </div>
+            <div class="progress-bar" v-if="isUploading">
+              <div
+                class="progress-bar-fill"
+                :style="{ width: progress + '%' }"
+              ></div>
+            </div>
           </div>
         </div>
-        <div class="rightForm">
-          <div class="image-upload">
-            <input type="file" id="image" @change="onImageChange" />
-            <img :src="imageUrl" alt="Preview Gambar" v-if="imageUrl" />
-          </div>
-          <div class="progress-bar" v-if="isUploading">
-            <div
-              class="progress-bar-fill"
-              :style="{ width: progress + '%' }"
-            ></div>
-          </div>
-        </div>
-      </div>
-      <button type="submit" :disabled="isUploading">Tambah</button>
-    </form>
+        <button type="submit" :disabled="isUploading">Tambah</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -66,10 +68,15 @@ export default {
     return {
       isUploading: false,
       progress: 0,
+      showForm: true,
     }
   },
   methods: {
     // ... (sama seperti komponen FormTambahProject)
+    closeForm() {
+      this.showForm = false
+      this.$router.push('/dashboard')
+    },
   },
   mounted() {
     console.log('Navbar mounted')
@@ -78,6 +85,19 @@ export default {
 </script>
 
 <style scoped>
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Pastikan overlay berada di atas komponen lain */
+}
+
 .edit-project {
   background-color: whitesmoke;
   display: flex;

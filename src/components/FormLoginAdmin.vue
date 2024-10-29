@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import axios from 'axios' // Pastikan axios sudah terpasang
+
 export default {
   name: 'FormLoginAdmin',
   data() {
@@ -45,47 +47,41 @@ export default {
     }
   },
   methods: {
-    handleSubmit() {
-      // Logika untuk mengirimkan data login ke server
-      console.log('Username:', this.username)
-      console.log('Password:', this.password)
-      console.log('Ingat saya:', this.remember)
-
-      // Logika autentikasi ke server, misalnya menggunakan axios
-      axios
-        .post('/api/login', {
+    async handleSubmit() {
+      try {
+        const response = await axios.post('http://localhost:3000/api/login', {
           username: this.username,
           password: this.password,
         })
-        .then(response => {
-          console.log('Login berhasil:', response.data)
-          this.$router.push('/dashboard')
-        })
-        .catch(error => {
-          console.error('Login gagal:', error.response.data)
-        })
+
+        console.log('Login berhasil:', response.data)
+        this.$router.push('/dashboard') // Redirect ke halaman dashboard setelah berhasil login
+      } catch (error) {
+        console.error('Login gagal:', error.response.data)
+        alert(error.response.data.error || 'Login gagal. Silakan coba lagi.') // Menampilkan pesan kesalahan
+      }
     },
     closeLoginForm() {
       this.showLoginForm = false
-      this.$router.push('/')
+      this.$router.push('/') // Redirect ke halaman utama jika form login ditutup
     },
   },
 }
 </script>
 
 <style scoped>
-/* Gaya CSS untuk form login */
+/* Gaya CSS untuk form login tetap sama seperti sebelumnya */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Pastikan overlay berada di atas komponen lain */
+  z-index: 1000;
 }
 
 .login-form {
@@ -95,7 +91,7 @@ export default {
   gap: 20px;
   padding: 50px 200px;
   border-radius: 20px;
-  z-index: 1001; /* Form berada di atas overlay */
+  z-index: 1001;
   position: relative;
 }
 
@@ -136,7 +132,7 @@ form input {
   padding: 10px;
 }
 
-form .chechbox-item {
+form .checkbox-item {
   display: block;
 }
 

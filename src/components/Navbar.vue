@@ -8,13 +8,20 @@
       <a href="">Projects</a>
       <a href="">About</a>
       <a href="">Contact</a>
-      <router-link to="/login"><button>Login</button></router-link>
-      <router-view></router-view>
+      <div v-if="isLoggedIn">
+        <p>Welcome, {{ user.username }}!</p>
+        <button>Log Out</button>
+      </div>
+      <div v-else>
+        <router-link to="/login"><button>Login</button></router-link>
+      </div>
+      <!-- <router-view></router-view> -->
     </ul>
   </nav>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'Navbar',
   props: {},
@@ -24,6 +31,15 @@ export default {
   methods: {},
   mounted() {
     console.log('Navbar mounted')
+  },
+  computed: {
+    ...mapGetters(['isLoggedIn', 'getUser']), // Menggunakan getters dari Vuex
+    user() {
+      return this.getUser // Ambil informasi user dari Vuex
+    },
+  },
+  created() {
+    this.$store.dispatch('checkSession') // Memeriksa sesi saat komponen di-mount
   },
 }
 </script>

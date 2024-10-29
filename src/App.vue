@@ -2,15 +2,17 @@
   <div id="app">
     <Navbar />
     <Header />
+    <router-view></router-view>
     <ItemList :items="itemsData" />
     <About />
     <FormPemesanan />
     <Footer />
-    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 import Navbar from './components/Navbar.vue'
 import Header from './components/Header.vue'
 import ItemList from './components/ItemList.vue'
@@ -39,6 +41,15 @@ export default {
         // Data untuk komponen ItemList
       ],
     }
+  },
+  computed: {
+    ...mapGetters(['allItems']),
+    items() {
+      return this.allItems
+    },
+  },
+  created() {
+    this.$store.dispatch('fetchItems')
   },
 }
 </script>
