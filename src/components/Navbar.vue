@@ -8,6 +8,8 @@
       <a href="">Projects</a>
       <a href="">About</a>
       <a href="">Contact</a>
+      <router-link to="/login"><button>Login</button></router-link>
+      <router-view></router-view>
     </ul>
   </nav>
 </template>
@@ -30,7 +32,6 @@ export default {
 .navbar {
   display: flex;
   align-items: center;
-  align-items: center;
   width: 100%;
   justify-content: space-between;
   padding: 2rem 4rem;
@@ -44,5 +45,12 @@ export default {
   justify-content: space-around;
   list-style-type: none;
   gap: 20px;
+}
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: hsla(160, 100%, 37%, 1);
+  color: white;
 }
 </style>

@@ -1,22 +1,21 @@
 import './assets/main.css'
 
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import routes from './routes'
 import App from './App.vue'
 
-import VueRouter from 'vue-router'
-import router from '././router'
-
-// const app = createApp(App)
-
-Vue.use(VueRouter) // Gunakan router
-// app.mount('#app')
-
-const router = new VueRouter({
+// Membuat instance router untuk Vue 3
+const router = createRouter({
+  history: createWebHistory(),
   routes,
 })
 
-new Vue({
-  el: '#app',
-  router: router,
-  render: h => h(App),
-})
+// Membuat aplikasi Vue 3
+const app = createApp(App)
+
+// Menggunakan router dalam aplikasi
+app.use(router)
+
+// Mounting aplikasi ke elemen dengan id `app`
+app.mount('#app')

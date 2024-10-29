@@ -1,33 +1,35 @@
 <template>
-  <div class="login-form">
-    <button class="close-button">&times;</button>
-    <h2>Login Admin</h2>
-    <hr />
-    <form @submit.prevent="handleSubmit">
-      <div>
-        <input
-          type="text"
-          id="username"
-          v-model="username"
-          required
-          placeholder="Username"
-        />
-      </div>
-      <div>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          required
-          placeholder="Password"
-        />
-      </div>
-      <div class="checkbox-item">
-        <input type="checkbox" id="remember" v-model="remember" />
-        <label for="remember">Remember Me</label>
-      </div>
-      <button type="submit">Login</button>
-    </form>
+  <div v-if="showLoginForm" class="overlay">
+    <div class="login-form">
+      <button class="close-button" @click="closeLoginForm">&times;</button>
+      <h2>Login Admin</h2>
+      <hr />
+      <form @submit.prevent="handleSubmit">
+        <div>
+          <input
+            type="text"
+            id="username"
+            v-model="username"
+            required
+            placeholder="Username"
+          />
+        </div>
+        <div>
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            required
+            placeholder="Password"
+          />
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="remember" v-model="remember" />
+          <label for="remember">Remember Me</label>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -39,6 +41,7 @@ export default {
       username: '',
       password: '',
       remember: false,
+      showLoginForm: true, // Mengontrol tampilan form login
     }
   },
   methods: {
@@ -48,33 +51,43 @@ export default {
       console.log('Password:', this.password)
       console.log('Ingat saya:', this.remember)
 
-      // Ganti dengan logika autentikasi Anda
-      // Misalnya, kirim data ke API backend menggunakan axios
+      // Logika autentikasi ke server, misalnya menggunakan axios
       axios
         .post('/api/login', {
           username: this.username,
           password: this.password,
         })
         .then(response => {
-          // Handle response sukses
           console.log('Login berhasil:', response.data)
-          // Redirect ke halaman dashboard atau halaman utama
           this.$router.push('/dashboard')
         })
         .catch(error => {
-          // Handle error
           console.error('Login gagal:', error.response.data)
         })
     },
-  },
-  mounted() {
-    console.log('Navbar mounted')
+    closeLoginForm() {
+      this.showLoginForm = false
+      this.$router.push('/')
+    },
   },
 }
 </script>
 
 <style scoped>
 /* Gaya CSS untuk form login */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Pastikan overlay berada di atas komponen lain */
+}
+
 .login-form {
   background-color: whitesmoke;
   display: flex;
@@ -82,7 +95,8 @@ export default {
   gap: 20px;
   padding: 50px 200px;
   border-radius: 20px;
-  margin: 4rem;
+  z-index: 1001; /* Form berada di atas overlay */
+  position: relative;
 }
 
 .close-button {
@@ -94,7 +108,8 @@ export default {
   font-size: 1.6em;
   width: 30px;
   position: absolute;
-  right: 200px;
+  top: 10px;
+  right: 10px;
 }
 
 h2 {
@@ -104,8 +119,9 @@ h2 {
 }
 
 hr {
-  height: 20px;
+  height: 2px;
   background-color: hsla(160, 100%, 37%, 1);
+  border: none;
 }
 
 form {
