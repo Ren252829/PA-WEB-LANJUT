@@ -1,77 +1,74 @@
 <template>
-  <form class="form-pemesanan">
-    <h2>Form Pemesanan</h2>
-    <hr />
-    <div class="upForm">
-      <div class="leftForm">
-        <div class="form-group">
-          <input
-            type="text"
-            id="nama"
-            v-model="nama"
-            placeholder="Nama Lengkap"
-          />
-        </div>
-        <div class="form-group">
-          <input type="email" id="email" v-model="email" placeholder="Email" />
-        </div>
-        <div class="form-group">
-          <input
-            type="text"
-            id="noHp"
-            v-model="email"
-            placeholder="Nomor Telepon"
-          />
-        </div>
-        <div class="form-group-check-box">
-          <input type="checkbox" value="value1" v-model="pilihan" /> Videografi
-          <input type="checkbox" value="value2" v-model="pilihan" /> Photografi
-          <input type="checkbox" value="value3" v-model="pilihan" /> Voice Over
-        </div>
-      </div>
-      <div class="rightForm">
-        <input
-          type="text"
-          id="nama"
-          v-model="deskripsi"
-          placeholder="Deskripsi"
-        />
-      </div>
+  <form @submit.prevent="submitForm">
+    <div>
+      <input type="text" v-model="nama" placeholder="Nama Lengkap" />
     </div>
-    <div class="bottomForm">
-      <p class="keterangan">
-        *Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque
-        ornare vitae amet.
-      </p>
-      <button type="submit">Submit</button>
+    <div>
+      <input type="email" v-model="email" placeholder="Email" />
     </div>
+    <div>
+      <input type="text" v-model="noHp" placeholder="Nomor HP" />
+    </div>
+    <div>
+      <input type="text" v-model="deskripsi" placeholder="Deskripsi" />
+    </div>
+    <div>
+      <label>
+        <input type="checkbox" value="Videografi" v-model="pilihan" /> Videografi
+      </label>
+      <label>
+        <input type="checkbox" value="Photografi" v-model="pilihan" /> Photografi
+      </label>
+      <label>
+        <input type="checkbox" value="Voice Over" v-model="pilihan" /> Voice Over
+      </label>
+    </div>
+    <button type="submit">Submit</button>
   </form>
 </template>
 
 <script>
+import axios from '../axios';
 export default {
   name: 'FormPemesanan',
   data() {
     return {
       nama: '',
       email: '',
+      noHp: '',
       pilihan: [],
-    }
+      deskripsi: '',
+    };
   },
   methods: {
-    submitForm() {
-      // Tambahkan logika untuk mengirimkan data formulir ke server
-      console.log('Data formulir:', {
-        nama: this.nama,
-        email: this.email,
-        pilihan: this.pilihan,
-      })
-    },
+    async submitForm() {
+  try {
+    console.log({
+      name: this.nama,
+      email: this.email,
+      phone_number: this.noHp,
+      description: this.deskripsi,
+      type: this.pilihan.join(', '),
+    });
+    const response = await axios.post('/orders', {
+      name: this.nama,
+      email: this.email,
+      phone_number: this.noHp,
+      description: this.deskripsi,
+      type: this.pilihan.join(', '),
+    });
+    console.log('Response:', response.data);
+    alert('Form berhasil disubmit!');
+  } catch (error) {
+    console.error('Error saat mengirim formulir:', error);
+    alert('Gagal mengirim formulir');
+  }
+},
   },
   mounted() {
-    console.log('Navbar mounted')
+    console.log('Navbar mounted');
   },
-}
+};
 </script>
 
 <style scoped>
@@ -88,7 +85,7 @@ export default {
 
 hr {
   height: 20px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
 }
 
 .upForm {
@@ -144,9 +141,10 @@ h2 {
 button {
   padding: 15px;
   font-size: 14px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
   border: none;
   border-radius: 4px;
+  color: white;
 }
 
 .keterangan {

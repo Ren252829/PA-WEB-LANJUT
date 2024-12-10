@@ -5,7 +5,7 @@
   />
 
   <div class="item-list">
-    <div class="item" v-for="item in items" :key="item.id">
+    <div class="item" v-for="item in items" :key="item.id" @click="onProjectClick(item)">
       <img :src="item.imageUrl" alt="Image" />
       <h3>{{ item.title }}</h3>
       <p>{{ item.description }}</p>
@@ -18,7 +18,7 @@
   </div>
 
   <div class="menu">
-    <div class="menu-item active" id="photography">
+    <div class="menu-item active" @click="toast" id="photography">
       <i class="icon">&#128247;</i>
       <!-- Icon Photography -->
       <span>Photography</span>
@@ -39,53 +39,79 @@
 </template>
 
 <script>
-import ActionButton from './ActionButton.vue'
-import { mapGetters } from 'vuex'
+import ActionButton from './ActionButton.vue';
+import { mapGetters } from 'vuex';
+import { getAllProjects, getProjectById } from '../services/projectService';
+
+import { defineComponent } from 'vue'
+import { createToast } from 'mosha-vue-toastify';
+import 'mosha-vue-toastify/dist/style.css'
 
 export default {
   name: 'ItemList',
   components: {
     ActionButton,
   },
+  setup(){
+    const toast = () => {
+        createToast('Wow, easy')
+    }
+    return { toast }
+  },
   computed: {
     ...mapGetters(['isLoggedIn', 'getUser']), // Menggunakan getters dari Vuex
     user() {
-      return this.getUser // Ambil informasi user dari Vuex
+      return this.getUser; // Ambil informasi user dari Vuex
     },
   },
-  props: {
-    items: {
-      type: Array,
-      required: true,
+  data() {
+    return {
+      items: [], // Daftar proyek yang akan ditampilkan
+    };
+  },
+  async mounted() {
+    console.log('Component mounted');
+    await this.loadProjects();
+  },
+  methods: {
+    async loadProjects() {
+      try {
+        const projects = await getAllProjects();
+        // Pastikan setiap project memiliki URL gambar yang benar
+        this.items = projects.map((project) => ({
+          ...project,
+          imageUrl: project.thumbnail, // Gunakan thumbnail sebagai imageUrl
+        }));
+        console.log('Fetched projects:', this.items);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    },
+    async fetchProjectDetails(projectId) {
+      try {
+        const projectDetails = await getProjectById(projectId);
+        console.log('Fetched project details:', projectDetails);
+      } catch (error) {
+        console.error('Error fetching project by ID:', error);
+      }
+    },
+    async onProjectClick(project) {
+      console.log('Clicked project:', project);
+      try {
+        // Cek validitas sebelum mengarahkan ke FormEditProject
+        if (project && project.id) {
+          // Mengarahkan ke FormEditProject dengan projectId sebagai parameter
+          this.$router.push({ name: 'FormEditProject', params: { projectId: project.id } });
+        } else {
+          console.error('Invalid project clicked');
+        }
+      } catch (error) {
+        console.error('Error handling project click:', error);
+      }
     },
   },
-  mounted() {
-    console.log('Navbar mounted')
-  },
-  created() {
-    this.$store.dispatch('checkSession') // Memeriksa sesi saat komponen di-mount
-  },
-}
+};
 
-// Set Photography as default active on page load
-document.addEventListener('DOMContentLoaded', function () {
-  // const defaultItem = document.querySelector('#photography')
-  // defaultItem.classList.add('active')
-})
-
-// Add event listeners to menu items
-document.querySelectorAll('.menu-item').forEach(item => {
-  item.addEventListener('click', function () {
-    // Remove 'active' class from all items
-    alert('tekan')
-    document.querySelectorAll('.menu-item').forEach(i => {
-      i.classList.remove('active')
-    })
-
-    // Add 'active' class to the clicked item
-    this.classList.add('active')
-  })
-})
 </script>
 
 <style scoped>
