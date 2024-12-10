@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import App from './App.vue'
+import { VueEmailPlugin } from 'vue-email'
 import store from './store' // Pastikan ini mengarah ke store Vuex Anda
 
 // Membuat instance router untuk Vue 3
@@ -18,6 +19,11 @@ const app = createApp(App)
 // Menggunakan store dan router dalam aplikasi
 app.use(store) // Pastikan untuk menggunakan store di sini
 app.use(router)
+
+//email
+app.use(VueEmailPlugin, {
+  baseUrl: 'https://google.com',
+})
 
 // Memeriksa sesi saat aplikasi dimulai
 store.dispatch('checkSession')

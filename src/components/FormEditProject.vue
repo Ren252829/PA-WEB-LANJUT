@@ -110,11 +110,11 @@ export default {
 
 hr {
   height: 20px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
 }
 
 .close-button {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
   border: none;
   border-radius: 4px;
   color: black;
@@ -175,7 +175,7 @@ form .topForm {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 2px dashed hsla(160, 100%, 37%, 1);
+  border: 2px dashed rgba(92, 41, 170, 0.8);
   border-radius: 5px;
   padding: 20px;
   width: 100%;
@@ -185,7 +185,7 @@ form .topForm {
 form button {
   padding: 15px;
   font-size: 14px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
   border: none;
   border-radius: 4px;
   width: 100px;

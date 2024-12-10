@@ -11,8 +11,16 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@vue-email/components": "^0.0.21",
+    "@vue-email/render": "^0.0.9",
     "axios": "^1.7.9",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mosha-vue-toastify": "^1.0.23",
+    "nodemailer": "^6.9.16",
     "vue": "^3.5.12",
+    "vue-email": "^0.8.11",
     "vue-router": "^4.4.5",
     "vuex": "^4.1.0"
   },

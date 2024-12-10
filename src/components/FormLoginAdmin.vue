@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import axios from '../axios' // Pastikan axios sudah terpasang
+import axios from '../axios'; // Impor Axios dari konfigurasi global
 
 export default {
   name: 'FormLoginAdmin',
@@ -48,7 +48,7 @@ export default {
       remember: false,
       showLoginForm: true,
       errorMessage: '',
-    }
+    };
   },
   methods: {
     async handleSubmit() {
@@ -57,6 +57,7 @@ export default {
           email: this.email,
           password: this.password,
         });
+
         console.log('Login successful:', response.data);
         // Simpan token di localStorage
     if (response.data?.token) {
@@ -65,6 +66,7 @@ export default {
     } else {
       alert('Login gagal, token tidak ditemukan');
     }
+
         // Jika berhasil login, arahkan ke halaman dashboard
         this.$router.push('/dashboard');
       } catch (error) {

@@ -41,7 +41,7 @@
 <script>
 import ActionButton from './ActionButton.vue';
 import { mapGetters } from 'vuex';
-import { getAllProjects, getProjectById } from '../services/projectService';
+import { getAllProjects, getProjectById } from '../services/projectService.js';
 
 import { defineComponent } from 'vue'
 import { createToast } from 'mosha-vue-toastify';

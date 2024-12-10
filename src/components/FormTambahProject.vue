@@ -17,15 +17,26 @@
               />
             </div>
             <div>
-              <input type="text" id="link" v-model="link" placeholder="Link" />
+              <input
+                type="text"
+                id="link"
+                v-model="link"
+                placeholder="Link"
+              />
             </div>
             <div class="form-group-check-box">
-              <input type="checkbox" value="value1" v-model="pilihan" />
-              Videografi
-              <input type="checkbox" value="value2" v-model="pilihan" />
-              Photografi
-              <input type="checkbox" value="value3" v-model="pilihan" /> Voice
-              Over
+              <label>
+                <input type="radio" value="Videografi" v-model="type" />
+                Videografi
+              </label>
+              <label>
+                <input type="radio" value="Photografi" v-model="type" />
+                Photografi
+              </label>
+              <label>
+                <input type="radio" value="Voice Over" v-model="type" />
+                Voice Over
+              </label>
             </div>
             <div>
               <textarea
@@ -56,77 +67,102 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'FormTambahProject',
   data() {
     return {
       title: '',
       link: '',
-      types: [],
+      description: '',
+      type: '', // Simpan hanya satu jenis proyek, tidak sebagai array
       image: null,
       imageUrl: null,
       isUploading: false,
       progress: 0,
       showForm: true,
-    }
+    };
   },
   methods: {
     onImageChange(event) {
-      this.image = event.target.files[0]
-      const reader = new FileReader()
-      reader.onload = e => {
-        this.imageUrl = e.target.result
+      if (event.target.files.length) {
+        this.image = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.imageUrl = e.target.result;
+        };
+        reader.readAsDataURL(this.image);
       }
-      reader.readAsDataURL(this.image)
     },
-    handleSubmit() {
-      this.isUploading = true
-      // Buat form data untuk mengirim data beserta gambar
-      const formData = new FormData()
-      formData.append('title', this.title)
-      formData.append('link', this.link)
-      formData.append('types', this.types)
-      formData.append('image', this.image)
+    async handleSubmit() {
+      
+  if (!this.image) {
+    alert('Gambar proyek harus diunggah!');
+    return;
+  }
 
-      // Kirim data ke server menggunakan axios atau fetch
-      axios
-        .post('/api/projects', formData, {
-          onUploadProgress: progressEvent => {
-            this.progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            )
-          },
-        })
-        .then(response => {
-          // Handle response sukses
-          console.log('Proyek berhasil ditambahkan:', response.data)
-          this.resetForm()
-        })
-        .catch(error => {
-          // Handle error
-          console.error('Terjadi kesalahan:', error)
-        })
-        .finally(() => {
-          this.isUploading = false
-        })
-    },
+  if (!this.type) {
+    alert('Silakan pilih jenis proyek!');
+    return;
+  }
+
+  this.isUploading = true;
+
+  const token = localStorage.getItem('token');
+  console.log('Token yang digunakan untuk request:', token);
+
+  if (!token) {
+    alert('Token tidak ditemukan, silakan login kembali!');
+    this.isUploading = false;
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('title', this.title);
+  formData.append('link', this.link);
+  formData.append('description', this.description);
+  formData.append('thumbnail', this.image);
+  formData.append('type', this.type);
+
+  try {
+    const response = await axios.post('/projects', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`, // Sertakan token di header
+      },
+      onUploadProgress: progressEvent => {
+        this.progress = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+      },
+    });
+
+    console.log('Proyek berhasil ditambahkan:', response.data);
+    alert(response.data.message);
+    this.resetForm();
+  } catch (error) {
+    console.error('Terjadi kesalahan:', error.response?.data || error);
+    alert('Terjadi kesalahan!');
+  } finally {
+    this.isUploading = false;
+  }
+},
     resetForm() {
-      this.title = ''
-      this.link = ''
-      this.types = []
-      this.image = null
-      this.imageUrl = null
-      this.progress = 0
+      this.title = '';
+      this.link = '';
+      this.description = '';
+      this.type = '';
+      this.image = null;
+      this.imageUrl = null;
+      this.progress = 0;
     },
     closeForm() {
-      this.showForm = false
-      this.$router.push('/dashboard')
+      this.showForm = false;
+      this.$router.push('/dashboard');
     },
   },
-  mounted() {
-    console.log('Navbar mounted')
-  },
-}
+};
 </script>
 
 <style scoped>
@@ -136,11 +172,13 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Latar belakang gelap transparan */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Pastikan overlay berada di atas komponen lain */
+  z-index: 1000;
+  /* Pastikan overlay berada di atas komponen lain */
 }
 
 .tambah-project {
@@ -155,11 +193,11 @@ export default {
 
 hr {
   height: 20px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color:rgba(92, 41, 170, 0.8);
 }
 
 .close-button {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color:rgba(92, 41, 170, 0.8);
   border: none;
   border-radius: 4px;
   color: black;
@@ -220,7 +258,7 @@ form .topForm {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 2px dashed hsla(160, 100%, 37%, 1);
+  border: 2px dashed rgba(92, 41, 170, 0.8);
   border-radius: 5px;
   padding: 20px;
   width: 100%;
@@ -230,7 +268,7 @@ form .topForm {
 form button {
   padding: 15px;
   font-size: 14px;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: rgba(92, 41, 170, 0.8);
   border: none;
   border-radius: 4px;
   width: 100px;

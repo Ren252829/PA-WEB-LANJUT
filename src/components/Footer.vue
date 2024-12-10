@@ -2,13 +2,11 @@
   <footer class="footer">
     <div class="topContainer">
       <div class="logo">
-        <img src="../assets/logo.svg" alt="Logo" />
+        <img src="../assets/infinitrylogowhite.png" alt="Logo" />
       </div>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur vel
-        quasi amet veniam, pariatur est officia tenetur repudiandae nobis
-        quaerat iure, autem voluptatibus ducimus suscipit modi laborum sed!
-        Officiis, nulla.
+        Dengan pendekatan pengembangan yang cermat, Infinitry hadir sebagai solusi efektif untuk membawa kreativitas
+        Anda ke level berikutnya. Mari bersama memajukan industri kreatif di Indonesia.
       </p>
       <nav>
         <a href="/">Home</a>
@@ -69,11 +67,19 @@ export default {
   width: 250px;
 }
 
+.logo img {
+  width: 100%;
+}
+
 nav {
   display: flex;
   flex-direction: column;
   padding: 0px 3rem;
   gap: 1rem;
+}
+
+nav a {
+  color: white;
 }
 
 .social-media {
@@ -88,5 +94,24 @@ hr {
 .copyright {
   display: flex;
   justify-content: space-between;
+}
+
+.link {
+  display: flex;
+  gap: 10px;
+}
+
+.link a {
+  color: #ffffff;
+}
+
+a {
+  color: white;
+  transition: transform 0.3s, text-shadow 0.3s; /* Transisi untuk transform dan text-shadow */
+}
+
+a:hover {
+  transform: scale(1.2);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6); /* Efek bercahaya */
 }
 </style>
