@@ -39,11 +39,15 @@ class ProjectController extends Controller
             'link' => 'required|url',
         ]);
 
+        // Simpan file ke dalam folder storage dan dapatkan nama file
         $path = $request->file('thumbnail')->store('thumbnails', 'public');
+
+        // Tambahkan URL lengkap ke thumbnail
+        $thumbnailUrl = url('storage/' . $path);
 
         $project = Project::create([
             'title' => $request->title,
-            'thumbnail' => $path,
+            'thumbnail' => $thumbnailUrl, // Simpan URL lengkap ke database
             'description' => $request->description,
             'type' => $request->type,
             'link' => $request->link,
@@ -56,7 +60,7 @@ class ProjectController extends Controller
             'project' => [
                 'id' => $project->id,
                 'title' => $project->title,
-                'thumbnail' => asset('storage/' . $project->thumbnail),
+                'thumbnail' => $project->thumbnail, // URL lengkap sudah disimpan di database
                 'description' => $project->description,
                 'type' => $project->type,
                 'link' => $project->link,
@@ -64,53 +68,56 @@ class ProjectController extends Controller
         ], 201);
     }
 
+
     public function update(Request $request, $id)
-{
-    \Log::info('Request received', $request->all());
-    // Cari proyek berdasarkan ID
-    $project = Project::find($id);
+    {
+        // Cari proyek berdasarkan ID
+        $project = Project::find($id);
 
-    // Jika proyek tidak ditemukan
-    if (!$project) {
-        return response()->json(['error' => 'Project not found'], 404);
-    }
-
-    // Validasi input dari pengguna
-    $request->validate([
-        'title' => 'sometimes|required|string|max:255',
-        'thumbnail' => 'sometimes|required|image|mimes:jpeg,png,jpg|max:2048',
-        'description' => 'sometimes|required|string',
-        'type' => 'sometimes|required|string|max:255',
-        'link' => 'sometimes|required|url',
-    ]);
-
-    try {
-        // Periksa apakah pengguna mengunggah thumbnail baru
-        if ($request->hasFile('thumbnail')) {
-            // Hapus thumbnail lama dari storage jika ada
-            if ($project->thumbnail && Storage::disk('public')->exists($project->thumbnail)) {
-                Storage::disk('public')->delete($project->thumbnail);
-            }
-
-            // Simpan thumbnail baru
-            $path = $request->file('thumbnail')->store('thumbnails', 'public');
-            $project->thumbnail = $path;
+        // Jika proyek tidak ditemukan
+        if (!$project) {
+            return response()->json(['error' => 'Project not found'], 404);
         }
 
-        // Perbarui hanya field yang diperbolehkan
-        $project->update($request->only(['title', 'description', 'type', 'link']));
+        // Validasi input dari pengguna
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'thumbnail' => 'sometimes|required|image|mimes:jpeg,png,jpg|max:2048',
+            'description' => 'sometimes|required|string',
+            'type' => 'sometimes|required|string|max:255',
+            'link' => 'sometimes|required|url',
+        ]);
 
-        return response()->json([
-            'message' => 'Project updated successfully',
-            'project' => $project
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'An error occurred while updating the project',
-            'details' => $e->getMessage()
-        ], 500);
+        try {
+            // Periksa apakah pengguna mengunggah thumbnail baru
+            if ($request->hasFile('thumbnail')) {
+                // Hapus thumbnail lama dari storage jika ada
+                if ($project->thumbnail && Storage::disk('public')->exists($project->thumbnail)) {
+                    $thumbnailPath = str_replace(url('storage/'), '', $project->thumbnail);
+                    Storage::disk('public')->delete($thumbnailPath);
+                }
+
+                // Simpan thumbnail baru
+                $path = $request->file('thumbnail')->store('thumbnails', 'public');
+                // Tambahkan URL lengkap ke thumbnail
+                $project->thumbnail = 'http://127.0.0.1:8000/storage/' . $path;
+            }
+
+            // Perbarui hanya field yang diperbolehkan
+            $project->update($request->only(['title', 'description', 'type', 'link']));
+
+            return response()->json([
+                'message' => 'Project updated successfully',
+                'project' => $project->fresh() // Memastikan data diperbarui dari database
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while updating the project',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
-}
+
 
     // Delete project (Requires login)
     public function destroy($id)

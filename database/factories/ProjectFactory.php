@@ -17,7 +17,7 @@ class ProjectFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence,
-            'thumbnail' => 'thumbnails/default.jpg', // Gunakan gambar dummy
+            'thumbnail' => 'http://127.0.0.1:8000/storage/thumbnails/default.jpg', // Gunakan gambar dummy
             'description' => $this->faker->paragraph,
             'type' => $this->faker->randomElement(['Photography', 'Videography']),
             'link' => $this->faker->url,

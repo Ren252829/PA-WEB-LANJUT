@@ -29,10 +29,10 @@ Route::get('/projects/{id}', [ProjectController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects', [ProjectController::class, 'store']);
-    Route::put('/projects/{id}', [ProjectController::class, 'update']);
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 });
 
+Route::put('/projects/{id}', [ProjectController::class, 'update']);
 // Route untuk membuat order
 Route::post('/orders', [OrderController::class, 'store']);
 
