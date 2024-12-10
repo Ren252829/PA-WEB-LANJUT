@@ -77,7 +77,7 @@ export default {
       link: '',
       description: '',
       pilihan: [],
-      imageFile: null,
+      // imageFile: null,
       imageUrl: '',
       projectId: null,
     };
@@ -95,7 +95,7 @@ export default {
         this.link = projectData.link || '';
         this.description = projectData.description || '';
         this.pilihan = projectData.type ? projectData.type.split(',') : [];
-        this.imageUrl = projectData.thumbnail || '';
+        this.imageUrl = projectData.thumbnail ? `http://127.0.0.1:8000/storage/${projectData.thumbnail}` : '';
       } else {
         console.error('ProjectId tidak ditemukan di route params');
         alert('Gagal memuat proyek, silakan coba lagi');
@@ -126,18 +126,6 @@ export default {
           return;
         }
 
-        this.isUploading = true;
-
-        const formData = new FormData();
-        formData.append('title', this.title);
-        formData.append('link', this.link);
-        formData.append('description', this.description);
-        formData.append('type', this.pilihan.join(','));
-
-        if (this.imageFile) {
-          formData.append('thumbnail', this.imageFile);
-        }
-
         const token = localStorage.getItem('token');
         if (!token) {
           alert('Token tidak ditemukan, silakan login kembali!');
@@ -145,34 +133,76 @@ export default {
           return;
         }
 
+        // Validasi Input
+        if (!this.title || !this.link || !this.description || this.pilihan.length === 0) {
+          alert('Mohon lengkapi semua field yang diperlukan!');
+          return;
+        }
+
+        this.isUploading = true;
+
+        const formData = new FormData();
+        formData.append('title', this.title);
+        formData.append('link', this.link);
+        formData.append('description', this.description);
+        formData.append('type', this.pilihan.join(',')); // Gabungkan pilihan tanpa JSON.stringify
+
+        console.log('FormData sebelum dikirim tanpa gambar:', {
+          title: this.title,
+          link: this.link,
+          description: this.description,
+          type: this.pilihan.join(','),
+        });
+
+        // if (this.imageFile) {
+        //   formData.append('thumbnail', this.imageFile);
+        // }
+        
+        // console.log('FormData sebelum dikirim:', {
+        //   title: this.title,
+        //   link: this.link,
+        //   description: this.description,
+        //   type: this.pilihan.join(','),
+        //   thumbnail: this.imageFile,
+        // });
+        const projectID = this.projectId;
+        console.log(projectID);
         const response = await axios.put(
-          `/projects/${this.$route.params.projectId}`,
+          `/projects/${this.projectId}`,
           formData,
           {
             headers: {
               'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`
             },
             onUploadProgress: (progressEvent) => {
               this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             },
           }
         );
-
+        console.log('Update successful:', response.data.project); // Log hasil pembaruan
+        console.log({
+          title: this.title,
+          link: this.link,
+          description: this.description,
+          type: this.pilihan.join(','),
+          imageFile: this.imageFile,
+        });
+        console.log(response);
         alert(response.data.message);
-        this.isUploading = false;
         this.closeForm();
+        this.isUploading = false;
       } catch (error) {
         console.error('Error while updating project:', error);
         alert('Gagal memperbarui proyek');
         this.isUploading = false;
       }
       console.log({
-      title: this.title,
-      link: this.link,
-      description: this.description,
-      type: this.pilihan.join(','),
-      imageFile: this.imageFile,
+        title: this.title,
+        link: this.link,
+        description: this.description,
+        type: this.pilihan.join(','),
+        imageFile: this.imageFile,
     });
     },
     async handleDelete() {

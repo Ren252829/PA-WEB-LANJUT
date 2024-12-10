@@ -64,8 +64,12 @@ export default {
   methods: {
     async loadProjects() {
       try {
-        const data = await getAllProjects();
-        this.items = data; // Simpan hasil proyek ke `items`
+        const projects = await getAllProjects();
+        // Pastikan setiap project memiliki URL gambar yang benar
+        this.items = projects.map((project) => ({
+          ...project,
+          imageUrl: project.thumbnail, // Gunakan thumbnail sebagai imageUrl
+        }));
         console.log('Fetched projects:', this.items);
       } catch (error) {
         console.error('Failed to load projects:', error);
