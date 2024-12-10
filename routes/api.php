@@ -35,3 +35,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Route untuk membuat order
 Route::post('/orders', [OrderController::class, 'store']);
+
+// routes/api.php
+Route::middleware('auth:sanctum')->get('/dashboard', function () {
+    return response()->json(['message' => 'Selamat datang di dashboard!']);
+});
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return response()->json(['user' => $request->user()]);
+});
+

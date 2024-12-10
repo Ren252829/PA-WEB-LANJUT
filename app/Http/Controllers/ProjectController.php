@@ -64,44 +64,69 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    // Update project (Requires login)
     public function update(Request $request, $id)
-    {
-        $project = Project::find($id);
+{
+    \Log::info('Request received', $request->all());
+    // Cari proyek berdasarkan ID
+    $project = Project::find($id);
 
-        if (!$project || $project->author_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized or project not found'], 403);
-        }
+    // Jika proyek tidak ditemukan
+    if (!$project) {
+        return response()->json(['error' => 'Project not found'], 404);
+    }
 
-        $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'thumbnail' => 'sometimes|required|image|mimes:jpeg,png,jpg|max:2048',
-            'description' => 'sometimes|required|string',
-            'type' => 'sometimes|required|string|max:255',
-            'link' => 'sometimes|required|url',
-        ]);
+    // Validasi input dari pengguna
+    $request->validate([
+        'title' => 'sometimes|required|string|max:255',
+        'thumbnail' => 'sometimes|required|image|mimes:jpeg,png,jpg|max:2048',
+        'description' => 'sometimes|required|string',
+        'type' => 'sometimes|required|string|max:255',
+        'link' => 'sometimes|required|url',
+    ]);
 
+    try {
+        // Periksa apakah pengguna mengunggah thumbnail baru
         if ($request->hasFile('thumbnail')) {
-            Storage::disk('public')->delete($project->thumbnail);
+            // Hapus thumbnail lama dari storage jika ada
+            if ($project->thumbnail && Storage::disk('public')->exists($project->thumbnail)) {
+                Storage::disk('public')->delete($project->thumbnail);
+            }
+
+            // Simpan thumbnail baru
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
             $project->thumbnail = $path;
         }
 
+        // Perbarui hanya field yang diperbolehkan
         $project->update($request->only(['title', 'description', 'type', 'link']));
 
-        return response()->json(['message' => 'Project updated successfully', 'project' => $project], 200);
+        return response()->json([
+            'message' => 'Project updated successfully',
+            'project' => $project
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while updating the project',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
 
     // Delete project (Requires login)
     public function destroy($id)
     {
         $project = Project::find($id);
 
-        if (!$project || $project->author_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized or project not found'], 403);
+        if (!$project) {
+            return response()->json(['error' => 'Project not found'], 404);
         }
 
-        Storage::disk('public')->delete($project->thumbnail);
+        // Menghapus file thumbnail jika ada
+        if ($project->thumbnail) {
+            Storage::disk('public')->delete($project->thumbnail);
+        }
+
+        // Menghapus proyek
         $project->delete();
 
         return response()->json(['message' => 'Project deleted successfully'], 200);
