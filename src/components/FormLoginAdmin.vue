@@ -8,6 +8,7 @@
         <div>
           <input
             type="text"
+            name ="email"
             id="username"
             v-model="username"
             required
@@ -17,6 +18,7 @@
         <div>
           <input
             type="password"
+            name ="password"
             id="password"
             v-model="password"
             required
@@ -34,7 +36,7 @@
 </template>
 
 <script>
-import axios from 'axios' // Pastikan axios sudah terpasang
+import axios from '../axios' // Pastikan axios sudah terpasang
 
 export default {
   name: 'FormLoginAdmin',
@@ -49,17 +51,23 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        const response = await axios.post('http://localhost:3000/api/login', {
-          username: this.username,
-          password: this.password,
-        })
-
-        console.log('Login berhasil:', response.data)
-        this.$router.push('/dashboard') // Redirect ke halaman dashboard setelah berhasil login
-      } catch (error) {
-        console.error('Login gagal:', error.response.data)
-        alert(error.response.data.error || 'Login gagal. Silakan coba lagi.') // Menampilkan pesan kesalahan
-      }
+    const response = await axios.post('/login', this.formData);
+    console.log('Login successful:', response.data);
+  } catch (error) {
+    // Periksa apakah error memiliki response
+    if (error.response) {
+      console.error('Response error:', error.response.data);
+      this.errorMessage = error.response.data.message || 'Login failed';
+    } else if (error.request) {
+      // Kesalahan terjadi saat permintaan dikirim tetapi tidak ada respons diterima
+      console.error('No response received:', error.request);
+      this.errorMessage = 'No response from the server. Please try again later.';
+    } else {
+      // Kesalahan konfigurasi lainnya
+      console.error('Error during request setup:', error.message);
+      this.errorMessage = 'An error occurred. Please try again.';
+    }
+  }
     },
     closeLoginForm() {
       this.showLoginForm = false
