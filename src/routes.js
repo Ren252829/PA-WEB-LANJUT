@@ -7,6 +7,7 @@ import FormTambahProject from './components/FormTambahProject.vue'
 import FormEditProject from './components/FormEditProject.vue'
 import ItemList from './components/ItemList.vue'
 import ActionButton from './components/ActionButton.vue'
+import FormPemesanan from './components/FormPemesanan.vue' // Impor FormPemesanan.vue
 
 const routes = [
   {
@@ -20,14 +21,19 @@ const routes = [
     component: FormTambahProject,
   },
   {
-    path: '/edit',
-    name: 'Edit Project',
+    path: '/edit:projectId',
+    name: 'FormEditProject',
     component: FormEditProject,
   },
   {
     path: '/dashboard',
     name: 'Admin Dashboard',
     component: ActionButton,
+  },
+  {
+    path: '/pemesanan', // Tambahkan route untuk FormPemesanan
+    name: 'FormPemesanan',
+    component: FormPemesanan,
   },
 ]
 

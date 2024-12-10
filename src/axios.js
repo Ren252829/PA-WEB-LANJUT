@@ -1,10 +1,21 @@
 import axios from 'axios';
 
-// Konfigurasi instance axios jika diperlukan
-const instance = axios.create({
-  baseURL: 'http://localhost:8000/api', // Ubah URL sesuai dengan kebutuhan
-  timeout: 1000,
-});
+// Atur base URL untuk semua permintaan Axios
+axios.defaults.baseURL = 'http://127.0.0.1:8000/api';
+axios.defaults.withCredentials = true; // Aktifkan denganCredentials
 
-// Ekspor default instance axios
-export default instance;
+// Interceptor untuk menambahkan token ke setiap permintaan
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken'); // Ambil token dari localStorage
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`; // Sertakan token dengan format Bearer
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+export default axios;

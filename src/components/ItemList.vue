@@ -20,17 +20,14 @@
   <div class="menu">
     <div class="menu-item active" @click="toast" id="photography">
       <i class="icon">&#128247;</i>
-      <!-- Icon Photography -->
       <span>Photography</span>
     </div>
     <div class="menu-item" id="videography">
       <i class="icon">&#127909;</i>
-      <!-- Icon Videography -->
       <span>Videography</span>
     </div>
     <div class="menu-item" id="voice-over">
       <i class="icon">&#127908;</i>
-      <!-- Icon Voice Over -->
       <span>Voice Over</span>
     </div>
   </div>
@@ -113,6 +110,7 @@ export default {
 };
 
 </script>
+
 
 <style scoped>
 /* Gaya CSS untuk ItemList */

@@ -92,7 +92,6 @@ export default {
 </script>
 
 <style scoped>
-/* Gaya CSS untuk form login tetap sama seperti sebelumnya */
 .overlay {
   position: fixed;
   top: 0;
@@ -113,8 +112,6 @@ export default {
   gap: 20px;
   padding: 50px 200px;
   border-radius: 20px;
-  z-index: 1001;
-  position: relative;
 }
 
 .close-button {
