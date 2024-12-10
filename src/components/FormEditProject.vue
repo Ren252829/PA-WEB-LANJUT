@@ -17,15 +17,20 @@
               />
             </div>
             <div>
-              <input type="text" id="link" v-model="link" placeholder="Link" />
+              <input
+                type="text"
+                id="link"
+                v-model="link"
+                placeholder="Link"
+              />
             </div>
             <div class="form-group-check-box">
-              <input type="checkbox" value="value1" v-model="pilihan" />
+              <input type="checkbox" value="Videografi" v-model="pilihan" />
               Videografi
-              <input type="checkbox" value="value2" v-model="pilihan" />
+              <input type="checkbox" value="Photografi" v-model="pilihan" />
               Photografi
-              <input type="checkbox" value="value3" v-model="pilihan" /> Voice
-              Over
+              <input type="checkbox" value="Voice Over" v-model="pilihan" />
+              Voice Over
             </div>
             <div>
               <textarea
@@ -49,39 +54,157 @@
             </div>
           </div>
         </div>
-        <button type="submit" :disabled="isUploading">Tambah</button>
+        <button type="submit" :disabled="isUploading">Simpan Perubahan</button>
       </form>
+      <button class="delete-button" @click="handleDelete">Hapus Proyek</button>
     </div>
   </div>
 </template>
 
 <script>
+import axios from '../axios';
+import { getProjectById } from '../services/projectService';
+
+
 export default {
   name: 'FormEditProject',
-  props: {
-    project: {
-      type: Object,
-      required: true,
-    },
-  },
   data() {
     return {
       isUploading: false,
       progress: 0,
       showForm: true,
+      title: '',
+      link: '',
+      description: '',
+      pilihan: [],
+      imageFile: null,
+      imageUrl: '',
+      projectId: null,
+    };
+  },
+  async mounted() {
+    try {
+      console.log('Route Params:', this.$route.params); // Debugging untuk memeriksa route params
+      const { projectId } = this.$route.params;
+      if (projectId) {
+        // Simpan projectId ke properti data
+        this.projectId = projectId;
+        const projectData = await getProjectById(projectId);
+        
+        this.title = projectData.title || '';
+        this.link = projectData.link || '';
+        this.description = projectData.description || '';
+        this.pilihan = projectData.type ? projectData.type.split(',') : [];
+        this.imageUrl = projectData.thumbnail || '';
+      } else {
+        console.error('ProjectId tidak ditemukan di route params');
+        alert('Gagal memuat proyek, silakan coba lagi');
+      }
+    } catch (error) {
+      console.error('Error loading project details:', error);
+      alert('Terjadi kesalahan saat memuat proyek');
     }
   },
   methods: {
-    // ... (sama seperti komponen FormTambahProject)
     closeForm() {
-      this.showForm = false
-      this.$router.push('/dashboard')
+      this.showForm = false;
+      this.$router.push('/dashboard');
+    },
+    onImageChange(e) {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        this.imageFile = file;
+        this.imageUrl = URL.createObjectURL(file);
+      } else {
+        alert('File yang dipilih bukan gambar yang valid');
+      }
+    },
+    async handleSubmit() {
+      try {
+        if (!this.projectId) {
+          alert('ID proyek tidak ditemukan');
+          return;
+        }
+
+        this.isUploading = true;
+
+        const formData = new FormData();
+        formData.append('title', this.title);
+        formData.append('link', this.link);
+        formData.append('description', this.description);
+        formData.append('type', this.pilihan.join(','));
+
+        if (this.imageFile) {
+          formData.append('thumbnail', this.imageFile);
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Token tidak ditemukan, silakan login kembali!');
+          this.isUploading = false;
+          return;
+        }
+
+        const response = await axios.put(
+          `/projects/${this.$route.params.projectId}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+            onUploadProgress: (progressEvent) => {
+              this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            },
+          }
+        );
+
+        alert(response.data.message);
+        this.isUploading = false;
+        this.closeForm();
+      } catch (error) {
+        console.error('Error while updating project:', error);
+        alert('Gagal memperbarui proyek');
+        this.isUploading = false;
+      }
+      console.log({
+      title: this.title,
+      link: this.link,
+      description: this.description,
+      type: this.pilihan.join(','),
+      imageFile: this.imageFile,
+    });
+    },
+    async handleDelete() {
+      if (!this.projectId) {
+        alert('ID proyek tidak ditemukan');
+        return;
+      }
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Token tidak ditemukan, silakan login kembali!');
+        return;
+      }
+
+      try {
+        const confirmDelete = confirm('Apakah Anda yakin ingin menghapus proyek ini?');
+        if (!confirmDelete) return;
+
+        const response = await axios.delete(`/projects/${this.projectId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        alert(response.data.message);
+        this.closeForm();
+      } catch (error) {
+        console.error('Error while deleting project:', error);
+        alert('Gagal menghapus proyek');
+      }
     },
   },
-  mounted() {
-    console.log('Navbar mounted')
-  },
-}
+};
 </script>
 
 <style scoped>

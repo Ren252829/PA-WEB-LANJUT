@@ -7,18 +7,18 @@
       <form @submit.prevent="handleSubmit">
         <div>
           <input
-            type="text"
-            name ="email"
-            id="username"
-            v-model="username"
+            type="email"
+            name="email"
+            id="email"
+            v-model="email"
             required
-            placeholder="Username"
+            placeholder="Email"
           />
         </div>
         <div>
           <input
             type="password"
-            name ="password"
+            name="password"
             id="password"
             v-model="password"
             required
@@ -31,54 +31,67 @@
         </div>
         <button type="submit">Login</button>
       </form>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import axios from '../axios' // Pastikan axios sudah terpasang
+import axios from '../axios'; // Impor Axios dari konfigurasi global
 
 export default {
   name: 'FormLoginAdmin',
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
       remember: false,
-      showLoginForm: true, // Mengontrol tampilan form login
-    }
+      showLoginForm: true,
+      errorMessage: '',
+    };
   },
   methods: {
     async handleSubmit() {
       try {
-    const response = await axios.post('/login', this.formData);
-    console.log('Login successful:', response.data);
-  } catch (error) {
-    // Periksa apakah error memiliki response
-    if (error.response) {
-      console.error('Response error:', error.response.data);
-      this.errorMessage = error.response.data.message || 'Login failed';
-    } else if (error.request) {
-      // Kesalahan terjadi saat permintaan dikirim tetapi tidak ada respons diterima
-      console.error('No response received:', error.request);
-      this.errorMessage = 'No response from the server. Please try again later.';
+        const response = await axios.post('/login', {
+          email: this.email,
+          password: this.password,
+        });
+
+        console.log('Login successful:', response.data);
+        // Simpan token di localStorage
+    if (response.data?.token) {
+      localStorage.setItem('token', response.data.token);
+      alert('Login berhasil');
     } else {
-      // Kesalahan konfigurasi lainnya
-      console.error('Error during request setup:', error.message);
-      this.errorMessage = 'An error occurred. Please try again.';
+      alert('Login gagal, token tidak ditemukan');
     }
-  }
+
+        // Jika berhasil login, arahkan ke halaman dashboard
+        this.$router.push('/dashboard');
+      } catch (error) {
+        // Tangani error dengan lebih detail
+        if (error.response) {
+          console.error('Response error:', error.response.data);
+          this.errorMessage = error.response.data.message || 'Login failed';
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+          this.errorMessage = 'No response from the server. Please try again later.';
+        } else {
+          console.error('Error during request setup:', error.message);
+          this.errorMessage = 'An error occurred. Please try again.';
+        }
+      }
     },
     closeLoginForm() {
-      this.showLoginForm = false
-      this.$router.push('/') // Redirect ke halaman utama jika form login ditutup
+      this.showLoginForm = false;
+      this.$router.push('/');
     },
   },
-}
+};
 </script>
 
 <style scoped>
-/* Gaya CSS untuk form login tetap sama seperti sebelumnya */
 .overlay {
   position: fixed;
   top: 0;
@@ -99,64 +112,11 @@ export default {
   gap: 20px;
   padding: 50px 200px;
   border-radius: 20px;
-  z-index: 1001;
-  position: relative;
 }
 
-.close-button {
-  background-color: hsla(160, 100%, 37%, 1);
-  border: none;
-  border-radius: 4px;
-  color: black;
-  cursor: pointer;
-  font-size: 1.6em;
-  width: 30px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-h2 {
-  color: black;
-  font-size: 32px;
-  font-weight: bold;
-}
-
-hr {
-  height: 2px;
-  background-color: hsla(160, 100%, 37%, 1);
-  border: none;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-
-form input {
-  width: 400px;
-  padding: 10px;
-}
-
-form .checkbox-item {
-  display: block;
-}
-
-#remember {
-  width: 30px;
-}
-
-label {
-  color: black;
-}
-
-form button {
-  padding: 15px;
+.error {
+  color: red;
   font-size: 14px;
-  background-color: hsla(160, 100%, 37%, 1);
-  border: none;
-  border-radius: 4px;
+  text-align: center;
 }
 </style>

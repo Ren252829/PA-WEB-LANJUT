@@ -20,8 +20,8 @@ const routes = [
     component: FormTambahProject,
   },
   {
-    path: '/edit',
-    name: 'Edit Project',
+    path: '/edit:projectId',
+    name: 'FormEditProject',
     component: FormEditProject,
   },
   {
